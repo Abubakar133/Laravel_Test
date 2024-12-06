@@ -44,45 +44,33 @@ const Upload = () => {
 
     useEffect(() => {
         let interval;
-    
+
         if (fileId) {
             interval = setInterval(() => {
                 fetch(`/file-status/${fileId}`)
                     .then((response) => response.json())
                     .then((data) => {
-                       
-    
-                        // If status is "Completed", show success and clear interval
                         if (data.upload_status === "Completed") {
                             toast.success("File uploaded and Ready to use!");
-                            clearInterval(interval);  // Stop polling once completed
-                        }
-                        // If status is "Failed", show error and clear interval
-                        else if (data.upload_status === "Failed") {
+                            clearInterval(interval);
+                        } else if (data.upload_status === "Failed") {
                             toast.error("File processing failed.");
-                            clearInterval(interval);  // Stop polling once failed
+                            clearInterval(interval);
+                        } else if (data.upload_status === "Processing") {
+                            setintervel(10000);
                         }
-                        else if (data.upload_status === "Processing") {
-                           
-                           setintervel(10000)
-                        }
-                        
                     })
                     .catch((error) => {
                         console.error("Error fetching file status:", error);
                         toast.error("Error fetching file status.");
-                        clearInterval(interval);  // Stop polling in case of error
+                        clearInterval(interval);
                     });
-                   
-            }, intervelvalue); 
+            }, intervelvalue);
         }
-    
-       
-        return () => clearInterval(interval);
-    }, [fileId, intervelvalue]);  
-    
 
-    // Drag and Drop functionality using react-dropzone
+        return () => clearInterval(interval);
+    }, [fileId, intervelvalue]);
+
     const { getRootProps, getInputProps } = useDropzone({
         onDrop: (acceptedFiles) => setData("file", acceptedFiles[0]),
         multiple: false,
@@ -91,7 +79,6 @@ const Upload = () => {
 
     return (
         <div>
-           
             <NavBar />
             <div className="min-h-screen bg-gradient-to-r from-blue-200 to-teal-500 flex justify-center items-center">
                 <div className="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
@@ -118,7 +105,6 @@ const Upload = () => {
                         </div>
                     )}
 
-                   
                     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                         {errors.file && (
                             <p className="text-red-500 text-sm">
